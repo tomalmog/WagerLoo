@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create profile and market in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Create the profile
       const profile = await tx.profile.create({
         data: {

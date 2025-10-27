@@ -41,7 +41,7 @@ export async function PUT(request: NextRequest) {
   try {
     const userId = session.user!.id as string;
     const body = await request.json();
-    const { name, program, year, bio, previousCoops, profilePicture } = body;
+    const { name, profilePicture, resumeUrl } = body;
 
     // Find the user's profile
     const existingProfile = await prisma.profile.findFirst({
@@ -61,11 +61,8 @@ export async function PUT(request: NextRequest) {
       },
       data: {
         name,
-        program,
-        year,
-        bio: bio || null,
-        previousCoops: previousCoops || null,
         profilePicture: profilePicture || null,
+        resumeUrl: resumeUrl || null,
       },
     });
 
