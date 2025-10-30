@@ -2,6 +2,7 @@
   "installCommand": "npm install && npx prisma generate",
   "buildCommand": "npm run build",
   "env": {
+    "DATABASE_URL": "file:./prisma/dev.db",
     "NEXT_PRIVATE_TURBOPACK": "0",
     "TURBOPACK": "0"
   },
