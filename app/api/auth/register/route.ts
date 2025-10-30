@@ -4,6 +4,7 @@ import { hash } from "bcryptjs";
 import crypto from "crypto";
 import { Resend } from "resend";
 
+export const runtime = "nodejs";
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function POST(request: NextRequest) {
