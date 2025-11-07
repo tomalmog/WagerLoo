@@ -24,21 +24,16 @@ function VerifyEmailContent() {
             </p>
             <p className="text-base font-medium">{email}</p>
           </div>
-          <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-3">
-            <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-              📧 Verification Link Available
+          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-3">
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+              📧 Check Your Email
             </p>
-            <p className="text-sm font-light text-amber-800 dark:text-amber-200">
-              Check your <strong>server terminal</strong> (where npm run dev is running) for the verification link.
+            <p className="text-sm font-light text-blue-800 dark:text-blue-200">
+              The verification email should arrive within <strong>1 minute</strong>. Click the link in the email to verify your account.
             </p>
-            <p className="text-xs font-light text-amber-700 dark:text-amber-300">
-              Look for "🔗 VERIFICATION LINK" in the console output, copy that link, and paste it into your browser.
+            <p className="text-xs font-light text-blue-700 dark:text-blue-300">
+              <strong>Note:</strong> If you don't see the email in your inbox, please check your <strong>spam or junk folder</strong>.
             </p>
-            <div className="mt-3 pt-3 border-t border-amber-300 dark:border-amber-700">
-              <p className="text-xs font-light text-amber-700 dark:text-amber-300">
-                <strong>Note:</strong> Email delivery is in development mode. For production, emails will be sent automatically.
-              </p>
-            </div>
           </div>
         </CardContent>
       </Card>
