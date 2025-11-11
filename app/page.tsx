@@ -154,6 +154,9 @@ export default function Home() {
     currentMarket.currentLine !== undefined &&
     currentMarket.currentLine !== null;
 
+  // Check if user is viewing their own profile
+  const isOwnProfile = session?.user?.email === currentMarket?.profile?.user?.email;
+
   return (
     <ProfileGuard>
       <Navbar />
@@ -252,8 +255,8 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Vote Distribution (shown after voting) */}
-                      {showVoteDistribution && (
+                      {/* Vote Distribution (shown after voting or when viewing own profile) */}
+                      {(showVoteDistribution || isOwnProfile) && (
                         <div className="bg-muted/50 border border-border rounded-lg p-6">
                           <div className="text-base font-light text-center mb-4">
                             Vote Distribution
@@ -275,7 +278,7 @@ export default function Home() {
                       )}
 
                       {/* Over/Under Buttons */}
-                      {!showVoteDistribution && (
+                      {!showVoteDistribution && !isOwnProfile && (
                         <>
                           {!session && (
                             <div className="text-center text-sm text-muted-foreground mb-2">
