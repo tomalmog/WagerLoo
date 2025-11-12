@@ -42,13 +42,17 @@ export default function Home() {
     if (status !== "loading") {
       fetchMarkets();
     }
-  }, [status]);
+  }, [status, session]);
 
   const fetchMarkets = () => {
     fetch("/api/markets")
       .then((res) => res.json())
       .then((data) => {
-        setMarkets(data);
+        // Filter out user's own profile from browse list
+        const filteredMarkets = session?.user?.email
+          ? data.filter((market: Market) => market.profile.user.email !== session.user.email)
+          : data;
+        setMarkets(filteredMarkets);
         setIsLoading(false);
       })
       .catch((error) => {
