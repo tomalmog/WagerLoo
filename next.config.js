@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // Enable server actions for Next.js 14+
-  },
+  experimental: {},
+  serverExternalPackages: ["@prisma/client", "bcryptjs"],
 };
 
 module.exports = nextConfig;
