@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     const newLine = Math.max(10, Math.min(100, market.currentLine + adjustment)); // Clamp between $10-$100
 
     // Create vote and update market in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Create the vote
       const vote = await tx.vote.create({
         data: {
