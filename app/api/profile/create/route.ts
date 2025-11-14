@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   const session = await auth();
 
