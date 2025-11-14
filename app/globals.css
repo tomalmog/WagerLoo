@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 250 250 249; /* stone-50 */
+    --foreground: 115 115 115; /* neutral-500 */
+    --card: 255 255 255;
+    --card-foreground: 38 38 38; /* neutral-800 */
+    --border: 229 229 229; /* neutral-200 */
+    --input: 229 229 229;
+    --primary: 38 38 38;
+    --primary-foreground: 250 250 249;
+    --muted: 245 245 244; /* stone-100 */
+    --muted-foreground: 115 115 115;
+    --accent: 245 245 244;
+    --accent-foreground: 38 38 38;
+  }
+
+  .dark {
+    --background: 0 0 0;
+    --foreground: 163 163 163; /* neutral-400 */
+    --card: 10 10 10;
+    --card-foreground: 212 212 212; /* neutral-300 */
+    --border: 38 38 38; /* neutral-800 */
+    --input: 38 38 38;
+    --primary: 250 250 249;
+    --primary-foreground: 0 0 0;
+    --muted: 23 23 23; /* neutral-900 */
+    --muted-foreground: 163 163 163;
+    --accent: 23 23 23;
+    --accent-foreground: 250 250 249;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-light;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Dotted grid background */
+  .dot-grid {
+    background-image: radial-gradient(rgb(var(--border)) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+}

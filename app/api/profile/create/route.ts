@@ -1,0 +1,77 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+export async function POST(request: NextRequest) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const userId = session.user!.id as string;
+    const body = await request.json();
+    const { name, profilePicture, resumeUrl } = body;
+
+    console.log('Creating profile with:', {
+      userId,
+      name,
+      hasProfilePicture: !!profilePicture,
+      hasResumeUrl: !!resumeUrl,
+      profilePictureLength: profilePicture?.length,
+      resumeUrlLength: resumeUrl?.length,
+    });
+
+    // Create profile and market in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the profile
+      const profile = await tx.profile.create({
+        data: {
+          userId: userId,
+          name,
+          profilePicture: profilePicture || null,
+          resumeUrl: resumeUrl || null,
+        },
+      });
+
+      // Create the market with over/under voting
+      // Starting line is $22/hr
+      const market = await tx.market.create({
+        data: {
+          profileId: profile.id,
+          title: `${name} - Next Co-op`,
+          description: `Over/under on ${name}'s next co-op salary`,
+          status: "active",
+          currentLine: 22.0,
+          initialLine: 22.0,
+          overVotes: 0,
+          underVotes: 0,
+        },
+      });
+
+      return { profile, market };
+    });
+
+    return NextResponse.json({
+      success: true,
+      profileId: result.profile.id,
+      marketId: result.market.id,
+    });
+  } catch (error) {
+    console.error("Error creating profile (full error):", error);
+    if (error instanceof Error) {
+      console.error("Error stack:", error.stack);
+    }
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    return NextResponse.json(
+      {
+        error: "Failed to create profile",
+        details: errorMessage,
+        stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
+      },
+      { status: 500 }
+    );
+  }
+}

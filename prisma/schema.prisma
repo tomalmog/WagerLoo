@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String      @id @default(cuid())
+  email             String      @unique
+  name              String?
+  password          String?
+  image             String?
+  emailVerified     Boolean     @default(false)
+  verificationToken String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  profiles      Profile[]
+  votes         Vote[]
+  positions     Position[]
+  transactions  Transaction[]
+}
+
+model Profile {
+  id            String      @id @default(cuid())
+  userId        String
+  name          String
+  profilePicture String?    // URL or base64 encoded image
+  resumeUrl     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user          User        @relation(fields: [userId], references: [id])
+  markets       Market[]
+}
+
+model Market {
+  id            String      @id @default(cuid())
+  profileId     String
+  title         String      // e.g., "John Doe - Summer 2024 Co-op"
+  description   String?
+  status        String      @default("active") // active, resolved, cancelled
+
+  // Over/Under voting (no money involved)
+  currentLine   Float       @default(22.0) // Current line (e.g., $22.00/hr)
+  initialLine   Float       @default(22.0) // Starting line
+  overVotes     Int         @default(0) // Total votes for over
+  underVotes    Int         @default(0) // Total votes for under
+
+  resolvedValue Float?      // Actual wage when resolved
+  resolvesAt    DateTime?   // When the market should resolve
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  profile       Profile     @relation(fields: [profileId], references: [id])
+  votes         Vote[]
+}
+
+model Vote {
+  id              String      @id @default(cuid())
+  userId          String
+  marketId        String
+
+  side            String      // "over" or "under"
+  lineAtVote      Float       // Line when vote was cast
+
+  createdAt       DateTime    @default(now())
+
+  user            User        @relation(fields: [userId], references: [id])
+  market          Market      @relation(fields: [marketId], references: [id])
+
+  @@unique([userId, marketId]) // One vote per user per market
+}
+
+// Keep old models for backward compatibility with existing data
+model Outcome {
+  id            String      @id @default(cuid())
+  marketId      String
+  label         String
+  minValue      Float
+  maxValue      Float
+  totalShares   Float       @default(100)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  positions     Position[]
+  transactions  Transaction[]
+}
+
+model Position {
+  id            String      @id @default(cuid())
+  userId        String
+  outcomeId     String
+  shares        Float       @default(0)
+  avgPrice      Float       @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user          User        @relation(fields: [userId], references: [id])
+  outcome       Outcome     @relation(fields: [outcomeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, outcomeId])
+}
+
+model Transaction {
+  id            String      @id @default(cuid())
+  userId        String
+  marketId      String
+  outcomeId     String
+  type          String
+  shares        Float
+  price         Float
+  totalCost     Float
+  createdAt     DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id])
+  outcome       Outcome     @relation(fields: [outcomeId], references: [id])
+}
