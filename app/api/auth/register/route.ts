@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import crypto from "crypto";
-import { Resend } from "resend";
+import * as brevo from "@getbrevo/brevo";
 
 export const runtime = "nodejs";
 
-let resendClient: Resend | null = null;
-if (process.env.RESEND_API_KEY) {
-  resendClient = new Resend(process.env.RESEND_API_KEY);
+let brevoClient: brevo.TransactionalEmailsApi | null = null;
+if (process.env.BREVO_API_KEY) {
+  brevoClient = new brevo.TransactionalEmailsApi();
+  brevoClient.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 }
 
 export async function POST(request: NextRequest) {
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
     console.log('\n=================================');
     console.log('📧 EMAIL VERIFICATION');
     console.log('To:', email);
-    console.log('Resend configured:', !!resendClient);
+    console.log('Brevo configured:', !!brevoClient);
     console.log('=================================');
 
     // ALWAYS log to console for development
@@ -69,31 +70,28 @@ export async function POST(request: NextRequest) {
     console.log(verificationUrl);
     console.log('\n');
 
-    // Try to send email via Resend (optional, may fail)
-    if (resendClient) {
+    // Try to send email via Brevo
+    if (brevoClient) {
       try {
-        const emailResult = await resendClient.emails.send({
-          from: 'Wagerloo <onboarding@resend.dev>',
-          to: email,
-          subject: 'Verify your Wagerloo account',
-          html: `
-            <h1>Welcome to Wagerloo!</h1>
-            <p>Hi ${name},</p>
-            <p>Thanks for signing up! Please verify your email address by clicking the link below:</p>
-            <a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #000; color: #fff; text-decoration: none; border-radius: 5px;">Verify Email</a>
-            <p>Or copy and paste this link into your browser:</p>
-            <p>${verificationUrl}</p>
-            <p>This link will expire in 24 hours.</p>
-          `,
-        });
-        console.log('✅ Email sent via Resend:', emailResult);
+        const sendSmtpEmail = new brevo.SendSmtpEmail();
+        sendSmtpEmail.sender = { name: "Wagerloo", email: "noreply@wagerloo.com" };
+        sendSmtpEmail.to = [{ email: email, name: name }];
+        sendSmtpEmail.subject = "Verify your Wagerloo account";
+        sendSmtpEmail.htmlContent = `
+          <h1>Welcome to Wagerloo!</h1>
+          <p>Hi ${name},</p>
+          <p>Thanks for signing up! Please verify your email address by clicking the link below:</p>
+          <a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #000; color: #fff; text-decoration: none; border-radius: 5px;">Verify Email</a>
+          <p>Or copy and paste this link into your browser:</p>
+          <p>${verificationUrl}</p>
+          <p>This link will expire in 24 hours.</p>
+        `;
+
+        const emailResult = await brevoClient.sendTransacEmail(sendSmtpEmail);
+        console.log('✅ Email sent via Brevo:', emailResult);
       } catch (emailError: any) {
-        if (emailError.message && emailError.message.includes('testing emails')) {
-          console.log('ℹ️  Resend free tier: Can only send to your account email');
-          console.log('   Use console link above or register with tom.almog.dev@gmail.com to test email sending');
-        } else {
-          console.error('❌ Resend failed:', emailError.message);
-        }
+        console.error('❌ Brevo failed:', emailError.message || emailError);
+        console.log('ℹ️  Check console link above for verification');
         // This is OK - user can use console link
       }
     }
