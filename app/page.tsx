@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/navbar";
+import { ProfileGuard } from "@/components/profile-guard";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -151,7 +152,7 @@ export default function Home() {
     currentMarket.currentLine !== null;
 
   return (
-    <>
+    <ProfileGuard>
       <Navbar />
       <main className="min-h-screen py-4 sm:py-12 dot-grid">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
@@ -358,6 +359,6 @@ export default function Home() {
           )}
         </div>
       </main>
-    </>
+    </ProfileGuard>
   );
 }
