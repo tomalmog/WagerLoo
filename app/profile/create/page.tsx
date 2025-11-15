@@ -89,80 +89,29 @@ export default function CreateProfilePage() {
     }
   };
 
-  const convertPdfToImage = async (file: File): Promise<string> => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // Dynamically import PDF.js
-        const pdfjsLib = await import('pdfjs-dist');
-
-        // Set worker source to use unpkg CDN
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-
-        const arrayBuffer = await file.arrayBuffer();
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-        const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1); // Get first page
-
-        // Set scale for good quality
-        const scale = 2.0;
-        const viewport = page.getViewport({ scale });
-
-        // Create canvas
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        if (!context) {
-          reject(new Error('Could not get canvas context'));
-          return;
-        }
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        // Render PDF page to canvas
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-        await page.render(renderContext as any).promise;
-
-        // Convert to base64 image with compression
-        const imageData = canvas.toDataURL('image/jpeg', 0.85);
-        console.log('PDF converted successfully, image length:', imageData.length);
-        resolve(imageData);
-      } catch (error) {
-        console.error('Error converting PDF:', error);
-        reject(error);
-      }
-    });
-  };
-
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setIsLoading(true);
-      // Convert PDFs to images for consistent display
+
+      // Only accept images - PDFs are not supported
       if (file.type === 'application/pdf') {
-        try {
-          console.log('Starting PDF conversion for file:', file.name, 'size:', file.size);
-          const imageData = await convertPdfToImage(file);
-          console.log('PDF conversion complete, setting form data');
-          setFormData({ ...formData, resumeUrl: imageData });
-          setPreviewResume(imageData);
-        } catch (error) {
-          console.error('Error converting PDF:', error);
-          alert(`Failed to process PDF: ${error instanceof Error ? error.message : 'Unknown error'}. Please try uploading as an image instead.`);
-        }
-      } else {
-        // Crop image resumes to 8.5:11 aspect ratio (letter size)
-        try {
-          const croppedImage = await cropImageToAspectRatio(file, 8.5/11);
-          setFormData({ ...formData, resumeUrl: croppedImage });
-          setPreviewResume(croppedImage);
-        } catch (error) {
-          console.error('Error cropping resume:', error);
-          alert('Failed to process resume image');
-        }
+        alert('PDFs are not supported. Please take a screenshot of your resume and upload it as an image (PNG, JPG, etc.)');
+        setIsLoading(false);
+        e.target.value = ''; // Clear the file input
+        return;
       }
+
+      // Crop image resumes to 8.5:11 aspect ratio (letter size)
+      try {
+        const croppedImage = await cropImageToAspectRatio(file, 8.5/11);
+        setFormData({ ...formData, resumeUrl: croppedImage });
+        setPreviewResume(croppedImage);
+      } catch (error) {
+        console.error('Error cropping resume:', error);
+        alert('Failed to process resume image');
+      }
+
       setIsLoading(false);
     }
   };
@@ -273,7 +222,7 @@ export default function CreateProfilePage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-light text-muted-foreground">
-                      Resume (PDF or Screenshot)
+                      Resume (Screenshot)
                     </label>
                     <label htmlFor="resume-upload">
                       <span className="px-4 py-2 text-xs font-light border border-border rounded-md hover:bg-muted transition-colors cursor-pointer">
@@ -283,7 +232,7 @@ export default function CreateProfilePage() {
                     <input
                       id="resume-upload"
                       type="file"
-                      accept="image/*,.pdf"
+                      accept="image/*"
                       onChange={handleResumeUpload}
                       className="hidden"
                     />
