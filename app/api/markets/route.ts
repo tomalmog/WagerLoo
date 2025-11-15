@@ -1,13 +1,37 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const session = await auth();
+    const { searchParams } = new URL(request.url);
+    const excludeVoted = searchParams.get("excludeVoted") === "true";
+
+    // Get markets user has already voted on if filtering is requested
+    let votedMarketIds: string[] = [];
+    if (excludeVoted && session?.user?.id) {
+      const votes = await prisma.vote.findMany({
+        where: {
+          userId: session.user.id,
+        },
+        select: {
+          marketId: true,
+        },
+      });
+      votedMarketIds = votes.map(v => v.marketId);
+    }
+
     const markets = await prisma.market.findMany({
       where: {
         status: "active",
+        ...(votedMarketIds.length > 0 ? {
+          id: {
+            notIn: votedMarketIds,
+          },
+        } : {}),
       },
       include: {
         profile: {
