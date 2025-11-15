@@ -45,7 +45,10 @@ export default function Home() {
   }, [status, session]);
 
   const fetchMarkets = () => {
-    fetch("/api/markets")
+    // Exclude markets user has already voted on if they're authenticated
+    const url = session?.user ? "/api/markets?excludeVoted=true" : "/api/markets";
+
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         // Filter out user's own profile from browse list
@@ -87,7 +90,7 @@ export default function Home() {
       if (response.ok) {
         const result = await response.json();
 
-        // Update the market with new vote counts and line
+        // Show vote distribution briefly
         const updatedMarkets = [...markets];
         updatedMarkets[currentIndex] = {
           ...updatedMarkets[currentIndex],
@@ -96,9 +99,21 @@ export default function Home() {
           underVotes: result.underVotes,
         };
         setMarkets(updatedMarkets);
-
-        // Show vote distribution
         setShowVoteDistribution(true);
+
+        // Automatically move to next profile after 2 seconds
+        setTimeout(() => {
+          // Remove current profile from list (Tinder-style)
+          const newMarkets = markets.filter((_, index) => index !== currentIndex);
+          setMarkets(newMarkets);
+
+          // Reset state for next profile
+          if (currentIndex >= newMarkets.length) {
+            setCurrentIndex(Math.max(0, newMarkets.length - 1));
+          }
+          setCurrentSlide(0);
+          setShowVoteDistribution(false);
+        }, 2000);
       } else {
         const error = await response.json();
         alert(error.error || "Failed to vote");
@@ -174,14 +189,18 @@ export default function Home() {
             <Card>
               <CardContent className="py-16 text-center">
                 <p className="text-muted-foreground font-light mb-4">
-                  No active markets yet. Be the first to create a profile.
+                  {session?.user?.hasProfile
+                    ? "No more profiles to view. Check back later for new profiles!"
+                    : "No active profiles yet. Be the first to create a profile."}
                 </p>
-                <Link
-                  href="/profile/create"
-                  className="text-foreground hover:text-primary font-light text-sm underline underline-offset-4"
-                >
-                  Create a profile →
-                </Link>
+                {!session?.user?.hasProfile && (
+                  <Link
+                    href="/profile/create"
+                    className="text-foreground hover:text-primary font-light text-sm underline underline-offset-4"
+                  >
+                    Create a profile →
+                  </Link>
+                )}
               </CardContent>
             </Card>
           ) : (
