@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     if (brevoClient) {
       try {
         const sendSmtpEmail = new brevo.SendSmtpEmail();
-        sendSmtpEmail.sender = { name: "Wagerloo", email: "noreply@wagerloo.com" };
+        sendSmtpEmail.sender = { name: "Wagerloo", email: "tom.almog.dev@gmail.com" };
         sendSmtpEmail.to = [{ email: email, name: name }];
         sendSmtpEmail.subject = "Verify your Wagerloo account";
         sendSmtpEmail.htmlContent = `
