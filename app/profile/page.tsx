@@ -112,10 +112,11 @@ export default function MyProfilePage() {
 
           <div className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-light">Profile Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="pt-6 space-y-6">
+                <div className="text-center">
+                  <h2 className="text-3xl font-light mb-2">{profile.name}</h2>
+                  <p className="text-sm text-muted-foreground font-light">{profile.user.email}</p>
+                </div>
                 {profile.profilePicture && (
                   <div className="flex justify-center">
                     <img
@@ -125,13 +126,8 @@ export default function MyProfilePage() {
                     />
                   </div>
                 )}
-                <div className="text-center">
-                  <h2 className="text-3xl font-light mb-2">{profile.name}</h2>
-                  <p className="text-sm text-muted-foreground font-light">{profile.user.email}</p>
-                </div>
                 {profile.resumeUrl && (
                   <div>
-                    <h3 className="text-sm font-medium mb-2">Resume</h3>
                     <img
                       src={profile.resumeUrl}
                       alt="Resume"
