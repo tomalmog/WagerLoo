@@ -243,19 +243,11 @@ export default function Home() {
                   {currentSlide === 1 && (
                     <div className="flex flex-col items-center justify-center flex-1 min-h-[500px]">
                       {currentMarket.profile.resumeUrl ? (
-                        currentMarket.profile.resumeUrl.startsWith('data:application/pdf') ? (
-                          <iframe
-                            src={currentMarket.profile.resumeUrl}
-                            className="w-full h-[500px] border-2 border-border rounded-lg"
-                            title="Resume PDF"
-                          />
-                        ) : (
-                          <img
-                            src={currentMarket.profile.resumeUrl}
-                            alt="Resume"
-                            className="w-full max-h-[500px] object-contain rounded-lg"
-                          />
-                        )
+                        <img
+                          src={currentMarket.profile.resumeUrl}
+                          alt="Resume"
+                          className="w-full max-h-[500px] object-contain rounded-lg"
+                        />
                       ) : (
                         <p className="text-muted-foreground">No resume uploaded</p>
                       )}
