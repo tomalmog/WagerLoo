@@ -31,53 +31,6 @@ Wagerloo allows students to showcase their skills, experience, and resumes while
 - **Brevo** for transactional emails
 - **Vercel** for deployment
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18 or higher
-- PostgreSQL database
-- npm or yarn package manager
-
-### Environment Variables
-
-Create a `.env` file in the root directory with the following variables:
-
-```env
-DATABASE_URL="postgresql://..."
-NEXTAUTH_SECRET="your-secret-key"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Email service (Brevo)
-BREVO_API_KEY="your-brevo-api-key"
-EMAIL_FROM="noreply@yourdomain.com"
-```
-
-### Installation
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Set up the database:
-```bash
-npx prisma db push
-npx prisma generate
-```
-
-3. (Optional) Seed the database with sample data:
-```bash
-npm run seed
-```
-
-4. Start the development server:
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:3000`
-
 ## Database Schema
 
 The application uses the following primary data models:
@@ -118,32 +71,3 @@ wagerloo-app/
 3. **Voting**: Other users browse profiles and vote "over" or "under" on the predicted salary
 4. **Line Movement**: The prediction adjusts after each vote based on the voting distribution
 5. **Leaderboard**: Profiles are ranked based on their final predicted salaries and voting activity
-
-## Development Commands
-
-```bash
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Database commands
-npm run seed              # Seed with sample data
-npm run cleanup          # Clean up database
-
-# Prisma commands
-npx prisma studio        # Open database GUI
-npx prisma db push       # Push schema changes
-```
-
-## Deployment
-
-The application is configured for deployment on Vercel. Ensure all environment variables are set in your Vercel project settings before deploying.
-
-## License
-
-MIT
