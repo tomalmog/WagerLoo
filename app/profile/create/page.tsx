@@ -137,7 +137,7 @@ export default function CreateProfilePage() {
 
       if (response.ok) {
         const data = await response.json();
-        router.push(`/market/${data.marketId}`);
+        router.push('/');
       } else {
         const errorData = await response.json();
         console.error("Failed to create profile:", errorData);
