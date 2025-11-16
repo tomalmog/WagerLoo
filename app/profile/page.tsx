@@ -79,7 +79,8 @@ export default function MyProfilePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: profile.name,
-            profilePicture: base64String
+            profilePicture: base64String,
+            resumeUrl: profile.resumeUrl
           }),
         });
 
@@ -111,6 +112,7 @@ export default function MyProfilePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: profile.name,
+            profilePicture: profile.profilePicture,
             resumeUrl: base64String
           }),
         });
