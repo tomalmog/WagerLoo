@@ -48,9 +48,22 @@ export default function Home() {
       .then((res) => res.json())
       .then((data) => {
         // Filter out user's own profile from browse list
-        const filteredMarkets = session?.user?.email
+        let filteredMarkets = session?.user?.email
           ? data.filter((market: Market) => market.profile.user.email !== session.user.email)
           : data;
+
+        // When not logged in, prioritize talmog@uwaterloo.ca profile to show first
+        if (!session?.user) {
+          const priorityEmail = "talmog@uwaterloo.ca";
+          const priorityIndex = filteredMarkets.findIndex(
+            (market: Market) => market.profile.user.email === priorityEmail
+          );
+          if (priorityIndex > 0) {
+            const priorityMarket = filteredMarkets[priorityIndex];
+            filteredMarkets = [priorityMarket, ...filteredMarkets.filter((_: any, i: number) => i !== priorityIndex)];
+          }
+        }
+
         setMarkets(filteredMarkets);
         setIsLoading(false);
       })
