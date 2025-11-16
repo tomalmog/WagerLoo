@@ -52,9 +52,9 @@ export default function Home() {
           ? data.filter((market: Market) => market.profile.user.email !== session.user.email)
           : data;
 
-        // When not logged in, prioritize talmog@uwaterloo.ca profile to show first
+        // When not logged in, prioritize lkatsif@uwaterloo.ca profile to show first
         if (!session?.user) {
-          const priorityEmail = "talmog@uwaterloo.ca";
+          const priorityEmail = "lkatsif@uwaterloo.ca";
           const priorityIndex = filteredMarkets.findIndex(
             (market: Market) => market.profile.user.email === priorityEmail
           );
