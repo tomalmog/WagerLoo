@@ -47,21 +47,14 @@ export default function Home() {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        // Filter out user's own profile from browse list
-        let filteredMarkets = session?.user?.email
-          ? data.filter((market: Market) => market.profile.user.email !== session.user.email)
-          : data;
+        let filteredMarkets;
 
-        // When not logged in, prioritize lkatsif@uwaterloo.ca profile to show first
-        if (!session?.user) {
-          const priorityEmail = "lkatsif@uwaterloo.ca";
-          const priorityIndex = filteredMarkets.findIndex(
-            (market: Market) => market.profile.user.email === priorityEmail
-          );
-          if (priorityIndex > 0) {
-            const priorityMarket = filteredMarkets[priorityIndex];
-            filteredMarkets = [priorityMarket, ...filteredMarkets.filter((_: any, i: number) => i !== priorityIndex)];
-          }
+        if (session?.user?.email) {
+          // Logged in: show all profiles except user's own
+          filteredMarkets = data.filter((market: Market) => market.profile.user.email !== session.user.email);
+        } else {
+          // Not logged in: show ONLY lkatsif@uwaterloo.ca profile
+          filteredMarkets = data.filter((market: Market) => market.profile.user.email === "lkatsif@uwaterloo.ca");
         }
 
         setMarkets(filteredMarkets);
