@@ -20,8 +20,10 @@ export default function EditProfilePage() {
     bio: "",
     previousCoops: "",
     profilePicture: "",
+    resumeUrl: "",
   });
   const [previewImage, setPreviewImage] = useState<string>("");
+  const [previewResume, setPreviewResume] = useState<string>("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -52,6 +54,24 @@ export default function EditProfilePage() {
     setPreviewImage(url);
   };
 
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setFormData({ ...formData, resumeUrl: base64String });
+        setPreviewResume(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResumeUrlChange = (url: string) => {
+    setFormData({ ...formData, resumeUrl: url });
+    setPreviewResume(url);
+  };
+
   const fetchProfile = async () => {
     try {
       const response = await fetch("/api/profile");
@@ -64,8 +84,10 @@ export default function EditProfilePage() {
           bio: data.bio || "",
           previousCoops: data.previousCoops || "",
           profilePicture: data.profilePicture || "",
+          resumeUrl: data.resumeUrl || "",
         });
         setPreviewImage(data.profilePicture || "");
+        setPreviewResume(data.resumeUrl || "");
       } else if (response.status === 404) {
         // No profile exists yet, redirect to create
         router.push("/profile/create");
@@ -92,7 +114,7 @@ export default function EditProfilePage() {
 
       if (response.ok) {
         alert("Profile updated successfully!");
-        router.push("/");
+        router.push("/profile");
       } else {
         const error = await response.json();
         alert(error.error || "Failed to update profile");
@@ -245,6 +267,41 @@ export default function EditProfilePage() {
                       setFormData({ ...formData, previousCoops: e.target.value })
                     }
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-light text-muted-foreground">
+                    Resume
+                  </label>
+                  <div className="flex flex-col gap-4">
+                    {previewResume && (
+                      <div className="flex justify-center">
+                        <img
+                          src={previewResume}
+                          alt="Resume preview"
+                          className="w-full max-w-md border rounded-lg"
+                        />
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleResumeUpload}
+                        className="font-light"
+                      />
+                      <div className="text-xs text-muted-foreground font-light text-center">
+                        or
+                      </div>
+                      <Input
+                        type="url"
+                        placeholder="Paste resume image URL"
+                        value={formData.resumeUrl.startsWith('data:') ? '' : formData.resumeUrl}
+                        onChange={(e) => handleResumeUrlChange(e.target.value)}
+                        className="font-light"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex gap-4 pt-4">

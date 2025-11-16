@@ -106,8 +106,13 @@ export default function MyProfilePage() {
       <Navbar />
       <main className="min-h-screen py-12 dot-grid">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <div className="mb-8">
+          <div className="mb-8 flex items-center justify-between">
             <h1 className="text-2xl font-light">My Profile</h1>
+            <Link href="/profile/edit">
+              <Button variant="outline" className="font-light">
+                Edit Profile
+              </Button>
+            </Link>
           </div>
 
           <div className="space-y-6">
