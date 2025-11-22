@@ -132,19 +132,11 @@ export default function MyProfilePage() {
                 {profile.resumeUrl && (
                   <div>
                     <h3 className="text-sm font-medium mb-2">Resume</h3>
-                    {profile.resumeUrl.startsWith('data:application/pdf') ? (
-                      <iframe
-                        src={profile.resumeUrl}
-                        className="w-full h-[500px] border-2 border-border rounded-lg"
-                        title="Resume PDF"
-                      />
-                    ) : (
-                      <img
-                        src={profile.resumeUrl}
-                        alt="Resume"
-                        className="w-full border rounded-lg"
-                      />
-                    )}
+                    <img
+                      src={profile.resumeUrl}
+                      alt="Resume"
+                      className="w-full border rounded-lg"
+                    />
                   </div>
                 )}
               </CardContent>
