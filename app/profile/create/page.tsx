@@ -92,25 +92,21 @@ export default function CreateProfilePage() {
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Handle PDFs - store as base64 without conversion
-      if (file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result as string;
-          setFormData({ ...formData, resumeUrl: base64String });
-          setPreviewResume(base64String);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        // Crop image resumes to 8.5:11 aspect ratio (letter size)
-        try {
-          const croppedImage = await cropImageToAspectRatio(file, 8.5/11);
-          setFormData({ ...formData, resumeUrl: croppedImage });
-          setPreviewResume(croppedImage);
-        } catch (error) {
-          console.error('Error cropping resume:', error);
-          alert('Failed to process resume image');
-        }
+      // Only accept images
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload a screenshot of your resume (PNG, JPG, etc.)');
+        e.target.value = '';
+        return;
+      }
+
+      // Crop image resumes to 8.5:11 aspect ratio (letter size)
+      try {
+        const croppedImage = await cropImageToAspectRatio(file, 8.5/11);
+        setFormData({ ...formData, resumeUrl: croppedImage });
+        setPreviewResume(croppedImage);
+      } catch (error) {
+        console.error('Error cropping resume:', error);
+        alert('Failed to process resume image');
       }
     }
   };
@@ -219,40 +215,35 @@ export default function CreateProfilePage() {
 
                 {/* Resume */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-light text-muted-foreground">
-                      Resume (PDF or Image)
-                    </label>
-                    <label htmlFor="resume-upload">
-                      <span className="px-4 py-2 text-xs font-light border border-border rounded-md hover:bg-muted transition-colors cursor-pointer">
-                        {previewResume ? "Choose new resume" : "Upload resume"}
-                      </span>
-                    </label>
-                    <input
-                      id="resume-upload"
-                      type="file"
-                      accept="image/*,.pdf"
-                      onChange={handleResumeUpload}
-                      className="hidden"
-                    />
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-light text-muted-foreground">
+                        Resume Screenshot
+                      </label>
+                      <label htmlFor="resume-upload">
+                        <span className="px-4 py-2 text-xs font-light border border-border rounded-md hover:bg-muted transition-colors cursor-pointer">
+                          {previewResume ? "Change" : "Upload"}
+                        </span>
+                      </label>
+                      <input
+                        id="resume-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleResumeUpload}
+                        className="hidden"
+                      />
+                    </div>
+                    <p className="text-xs font-light text-muted-foreground/60">
+                      Screenshot your resume for best mobile viewing
+                    </p>
                   </div>
                   {previewResume && (
                     <div className="flex justify-center">
-                      {previewResume.startsWith('data:application/pdf') ? (
-                        <div className="w-full border-2 border-border rounded-lg overflow-hidden">
-                          <iframe
-                            src={previewResume}
-                            className="w-full h-96"
-                            title="Resume PDF Preview"
-                          />
-                        </div>
-                      ) : (
-                        <img
-                          src={previewResume}
-                          alt="Resume preview"
-                          className="w-full object-contain border-2 border-border rounded-lg"
-                        />
-                      )}
+                      <img
+                        src={previewResume}
+                        alt="Resume preview"
+                        className="w-full object-contain border-2 border-border rounded-lg"
+                      />
                     </div>
                   )}
                 </div>
