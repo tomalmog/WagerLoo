@@ -38,7 +38,7 @@ export default function Home() {
     if (status !== "loading") {
       fetchMarkets();
     }
-  }, [status, session]);
+  }, [status]); // Only depend on status to prevent re-fetching when session object changes
 
   const fetchMarkets = () => {
     // Exclude markets user has already voted on if they're authenticated
