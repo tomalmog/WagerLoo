@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/navbar";
 import { ProfileGuard } from "@/components/profile-guard";
 import Link from "next/link";
@@ -32,6 +33,7 @@ export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [market, setMarket] = useState<Market | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     if (session?.user) {
@@ -61,6 +63,70 @@ export default function MyProfilePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    setUpdating(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      try {
+        const response = await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: profile.name,
+            profilePicture: base64String
+          }),
+        });
+
+        if (response.ok) {
+          const updated = await response.json();
+          setProfile(updated);
+        }
+      } catch (error) {
+        console.error("Error updating profile picture:", error);
+        alert("Failed to update profile picture");
+      } finally {
+        setUpdating(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    setUpdating(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      try {
+        const response = await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: profile.name,
+            resumeUrl: base64String
+          }),
+        });
+
+        if (response.ok) {
+          const updated = await response.json();
+          setProfile(updated);
+        }
+      } catch (error) {
+        console.error("Error updating resume:", error);
+        alert("Failed to update resume");
+      } finally {
+        setUpdating(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   if (loading) {
@@ -106,13 +172,8 @@ export default function MyProfilePage() {
       <Navbar />
       <main className="min-h-screen py-12 dot-grid">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8">
             <h1 className="text-2xl font-light">My Profile</h1>
-            <Link href="/profile/edit">
-              <Button variant="outline" className="font-light">
-                Edit Profile
-              </Button>
-            </Link>
           </div>
 
           <div className="space-y-6">
@@ -122,24 +183,66 @@ export default function MyProfilePage() {
                   <h2 className="text-3xl font-light mb-2">{profile.name}</h2>
                   <p className="text-sm text-muted-foreground font-light">{profile.user.email}</p>
                 </div>
-                {profile.profilePicture && (
+
+                {/* Profile Picture Section */}
+                <div className="space-y-3">
+                  {profile.profilePicture && (
+                    <div className="flex justify-center">
+                      <img
+                        src={profile.profilePicture}
+                        alt={profile.name}
+                        className="w-full max-w-md object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
                   <div className="flex justify-center">
-                    <img
-                      src={profile.profilePicture}
-                      alt={profile.name}
-                      className="w-full max-w-md object-cover rounded-lg"
+                    <Button
+                      variant="outline"
+                      className="font-light"
+                      disabled={updating}
+                      onClick={() => document.getElementById('profile-picture-input')?.click()}
+                    >
+                      {profile.profilePicture ? 'Update' : 'Choose'} Profile Picture
+                    </Button>
+                    <Input
+                      id="profile-picture-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfilePictureUpload}
+                      className="hidden"
                     />
                   </div>
-                )}
-                {profile.resumeUrl && (
-                  <div>
-                    <img
-                      src={profile.resumeUrl}
-                      alt="Resume"
-                      className="w-full border rounded-lg"
+                </div>
+
+                {/* Resume Section */}
+                <div className="space-y-3">
+                  {profile.resumeUrl && (
+                    <div>
+                      <img
+                        src={profile.resumeUrl}
+                        alt="Resume"
+                        className="w-full border rounded-lg"
+                      />
+                    </div>
+                  )}
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      className="font-light"
+                      disabled={updating}
+                      onClick={() => document.getElementById('resume-input')?.click()}
+                    >
+                      {profile.resumeUrl ? 'Update' : 'Upload'} Resume
+                    </Button>
+                    <Input
+                      id="resume-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleResumeUpload}
+                      className="hidden"
                     />
                   </div>
-                )}
+                </div>
               </CardContent>
             </Card>
 
